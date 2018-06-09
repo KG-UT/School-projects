@@ -7,7 +7,8 @@ They are just standard implementations of games that make use of inheritance and
 
 For strategies:
 
-On minimax and part of implementation:
+On minimax and part of implementation: 
+
 Minimax seeks to minimize the possible loss from a worst case scenario(That is, the opponent always takes their most optimal move).
 To implement it, game states can be assigned values of 1,0,-1 for a win, tie, and loss respectively. Moves can then
 be assigned values depending on the game state they lead to. Since minimax is typically used in zero sum games where
