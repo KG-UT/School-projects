@@ -1,7 +1,19 @@
-To play the games:
+# Text based games
 
-Download the game interface file, and the files containing each of the following games in their name: subtract square, chopsticks, stonehenge. You must download both the Game file and the state file for the games to run. To play the text based games, simply run game interface.
+Some simple textbased games. Can either play against another human player, or against a computer AI(Implemented using the minimax strategy).
 
-On the implementation of Strategies:
+## Prerequisites
 
-One of the strategies employed by the computer is Minimax. Minimax has the computer seek to minimize loss in the worst case scenario, where the opponent plays perfectly. This is implemented recursively in one version, and iteratively in another(making use of a stack and a tree).
+Simply having python 3.6 is enough!
+
+## Running
+
+Run game_interface.py and follow the instructions given.
+
+## On the implementation of the game AI
+
+The code for the game AI can be in strategy.py, under either of the following functions: 
+- recursive_minimax
+- iterative_minimax
+
+Both of these implement the decision ruling that is minimax. Minimax has the computer seek to minimize loss in the worst case scenario, where the opponent plays perfectly. We do this by assigning game states where we can guarantee at most a win, tie, or loss a score of 1, 0, and -1 respectively. To check if we can guarantee at most a win, tie, or loss from a certain game state, we treat game states like a tree, and check each possible 'child' game state, continually doing this until we reach game states where the game is already finished, at which point we can retroactively evaluate the score of game states based off the scores of their 'child' game states.
