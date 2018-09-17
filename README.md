@@ -12,7 +12,7 @@ Run game_interface.py and follow the instructions given.
 
 ## On the implementation of the game AI
 
-The code for the game AI can be in strategy.py, under either of the following functions: 
+The code for the game AI can be found in strategy.py, under either of the following functions: 
 - recursive_minimax
 - iterative_minimax
 
