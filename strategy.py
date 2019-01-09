@@ -6,7 +6,6 @@ import copy
 from simple_tree import Tree
 from subtract_square_game import SubtractSquareGame
 from stonehenge_game import Stonehenge
-from stonehenge_state_4 import StonehengeState
 
 
 def interactive_strategy(game: Any) -> Any:
@@ -22,11 +21,12 @@ def recursive_minimax(game: Union[Stonehenge, SubtractSquareGame]) -> Any:
     """
     scores = []
     moves = game.current_state.get_possible_moves()
+    seen_states = {}
     for move in moves:
-        if get_score(game, move) == 1:
+        if get_score(game, move, seen_states) == 1:
             return move
         else:
-            scores.append(get_score(game, move))
+            scores.append(get_score(game, move, seen_states))
     highest_score = max(scores)
     index_of_score = scores.index(highest_score)
     move = game.current_state.get_possible_moves()[index_of_score]
@@ -34,42 +34,63 @@ def recursive_minimax(game: Union[Stonehenge, SubtractSquareGame]) -> Any:
 
 
 def get_score(game: Union[Stonehenge,
-                          SubtractSquareGame], move: Any) -> int:
+                          SubtractSquareGame], move: Any,
+              seen_states: Dict['GameState', int]) -> int:
     """Returns a score for move in the current state of game.
     move is assumed to be a valid move.
     Will return 1 if move guarantees at most a win.
     Will return 0 if move guarantees at most a tie.
     Will return -1 if move guarantees at most a loss."""
+
+    # get old and new states
     new_state = game.current_state.make_move(move)
     old_state = game.current_state
-    new_game = game
-    new_game.current_state = new_state
+
+    # get old and new player
     old_player = old_state.get_current_player_name()
     new_player = new_state.get_current_player_name()
-    # base case
-    # Note that new_game is an alias of game. So by changing new game
-    # we change game. We must unmutate game before returning anything
-    # the winner
-    if new_game.is_over(new_state):
+
+    # base case: we can find the score instantly.
+    # i.e. If it is in seen_states or game is over
+
+    if new_state.__repr__() in seen_states:
+        return seen_states[new_state.__repr__()]
+
+    elif game.is_over(new_state):
         # get_current_player_name gets the other player's name
         # since players switch after making a move
-        # Old player's move has made old player win
-        if new_game.is_winner(old_player):
-            game.current_state = old_state
-            return 1
-        # The move has just made the other player win
-        elif new_game.is_winner(new_player):
-            game.current_state = old_state
+
+        # current player loses, so score = -1
+        if game.is_winner(old_player):
+            seen_states[new_state.__repr__()] = -1
             return -1
+
+        # current player wins, so score = 1
+        elif game.is_winner(new_player):
+            seen_states[new_state.__repr__()] = 1
+            return 1
+
         # Neither player has won, thus a tie
-        game.current_state = old_state
+        seen_states[new_state.__repr__()] = 0
         return 0
-     # opponent will take their best move.
+
+    # else, do recursion.
+    # opponent will take their best move.
     # Their best move negatively affects us.
-    x = -1*max([get_score(game, x) for x in
-                new_state.get_possible_moves()])
-    game.current_state = old_state
-    return x
+    move_scores = []
+    for x in new_state.get_possible_moves():
+        # new game for recursion
+        new_game = copy.deepcopy(game)
+        new_game.current_state = new_state
+        # want to stop early if opponent best move already found
+        # new player of state after new_state, i.e. old_player
+        if get_score(new_game, x, seen_states) == 1:
+            seen_states[new_state.__repr__()] = 1
+            return 1
+        # score for each move is -1*state score, since player changes
+        move_scores.append(-1*get_score(new_game, x, seen_states))
+    seen_states[new_state.__repr__()] = max(move_scores)
+    return max(move_scores)
 
 
 def iterative_minimax(game: Union[SubtractSquareGame,
